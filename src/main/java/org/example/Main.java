@@ -1,6 +1,7 @@
 package org.example;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +46,6 @@ public class Main {
         g2.addEdge(0,3,7);
 
         g2.addEdge(1,3,2);
-
         g2.addEdge(2,4,2);
         g2.addEdge(2,5,7);
 
@@ -77,6 +77,11 @@ public class Main {
 //divide by 2 because since its counting the edges twice, when doing the adding it messes up
         System.out.println("Total Weight: " + totalWeight/2);
 
+
+
+        //Testing Shortest Path
+        System.out.println("\n--- Shortest Path from Vertex 0 ---");
+        shortestPath(g2, 0);
 
     }
 
@@ -157,8 +162,68 @@ public class Main {
         return minNeighborVertex;
     }
 
+    /** */
     public static void  shortestPath(MyGraph g, int startingVertex) {
+        int[] dist = new int[g.vertices.size()];
+        int[] previous = new int[g.vertices.size()];
+        boolean[] visited = new boolean[g.vertices.size()];
 
+
+        for (int i = 0; i < g.vertices.size(); i++) {
+            dist[i] = Integer.MAX_VALUE; //setting all vertex distances to the max value.
+            previous[i] = -1; //setting all previous to -1
+            visited[i] = false; //set all visited to false
+        }
+
+        List<Integer> unvisitedList = new ArrayList<>(); //creating the unvisited list.
+
+        //putting all vertices in the unvisited list.
+        for (int v : g.vertices) {
+            unvisitedList.add(v);
+        }
+
+        //pick a starting vertex and settings its distance to 0;
+        dist[startingVertex] = 0;
+
+        //while unvisited list is not empty
+        while (!unvisitedList.isEmpty()) {
+            int currV = getMinDistVertex(g,unvisitedList, dist); // initialize current vertex
+            unvisitedList.remove((Integer) currV); // remove current vertex from Unvisited list
+            visited[currV] = true; //set current visited vertex to be true.
+
+            //for all unvisited neighbors of the current vertex.
+            for (Edge edge : g.adjList.get(currV)) {
+                int neighbor;
+                if (edge.v1 == currV) {  //if the current vertex is  vertex 1
+                    neighbor = edge.v2; } //then the neighbor is vertex 2
+                else neighbor = edge.v1; //else if the current vertex is vertex 2, then neighbor is vertex 1.
+
+                if (!visited[neighbor]) { //for all unvisited neighbors of currV
+                    int possibleDist = dist[currV] + edge.weight;
+                    if (possibleDist < dist[neighbor]) {
+                        dist[neighbor] = possibleDist;
+                        previous[neighbor] = currV;
+                    }
+                }
+            } //end for loop
+        } //end while loop
+
+        System.out.println("\nDistance Array:");
+        System.out.println("Vertex\tDistance");
+        for (int i = 0; i < g.vertices.size(); i++) {
+            if (dist[i] == Integer.MAX_VALUE) {
+                System.out.println(i + "\t" + "∞");
+            } else {
+                System.out.println(i + "\t" + dist[i]);
+            }
+        }
+
+        System.out.println("\nPrevious Array:");
+        System.out.println("Vertex\tPrevious");
+        for (int i = 0; i < g.vertices.size(); i++) {
+            System.out.println(i + "\t" + previous[i]);
+        }
+    }
 
 
 }
